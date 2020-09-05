@@ -1,5 +1,6 @@
 // how we import modules and make them available to our application
 const express = require("express");
+const cors = require("cors");
 const shortid = require("shortid");
 const Joi = require("joi");
 // const validateUserReq = require("./validation/validation.js");
@@ -9,11 +10,22 @@ const server = express();
 // const validation = validation();
 
 // id, username, bio
-let users = [];
+let users = [{
+    id: shortid.generate(),
+    username: "Bob",
+    bio: "I am a real person",
+  },
+  {
+    id: shortid.generate(),
+    username: "Fred",
+    bio: "I am more real than Bob",
+  },
+];
 
+// .use() sets up whatever middleware we want to use
 // adds body prop to req
 server.use(express.json());
-// server.use(cors());
+server.use(cors());
 
 // validation
 const validateUserReq = (req, res) => {
@@ -75,12 +87,14 @@ server.get("/api/users", (req, res) => {
 
 // GET INDIVIDUAL USER
 server.get("/api/users/:id", (req, res) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
 
   const user = users.find((user) => user.id === id);
 
   if (user) {
-    res.status(201).json(user);
+    res.status(200).json(user);
   } else if (!user) {
     res.status(404).json({
       message: "The user with the specified ID does not exist.",
@@ -94,7 +108,9 @@ server.get("/api/users/:id", (req, res) => {
 
 // DELETE INDIVIDUAL USER
 server.delete("/api/users/:id", (req, res) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
 
   const deleted = users.find((user) => user.id === id);
 
@@ -116,7 +132,9 @@ server.delete("/api/users/:id", (req, res) => {
 
 // EDIT INDIVIDUAL USER
 server.put("/api/users/:id", (req, res) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
   const valid = validateUserReq(req, res);
   const changes = req.body;
   changes.id = id;
@@ -133,11 +151,12 @@ server.put("/api/users/:id", (req, res) => {
     });
   } else {
     res.status(500).json({
-      message:
-        "The user information could not be modified at this time, please try again.",
+      message: "The user information could not be modified at this time, please try again.",
     });
   }
 });
+
+// console.log(server.stack);
 
 const PORT = 5000;
 
